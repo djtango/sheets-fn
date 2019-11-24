@@ -1,10 +1,12 @@
 (ns sheets-fn.api
-  (:require [sheets-fn.middleware.logging :as middleware.logging]
+  (:require [hiccup.core :as hiccup]
+            [sheets-fn.middleware.logging :as middleware.logging]
             [bidi.ring :as bidi.ring]
             [bidi.bidi :as bidi]
             [ring.middleware.params]
             [ring.middleware.nested-params]
             [ring.middleware.json]
+            [ring.middleware.resource]
             [ring.middleware.keyword-params]))
 
 (def bidi-routes
@@ -13,11 +15,31 @@
                "/search" {"" :search}}
         true :index}])
 
+(defn login [req]
+  (let [username (-> req :params :username)
+        password (-> req :params :password)]
+    (clojure.pprint/pprint req))
+  )
+
 (defn- search [_]
   (println "search"))
 
 (defn- index [_]
-  (println "index"))
+  {:status 200
+   :headers {"Content-Type" "text/html; charset=utf-8"}
+   :body (hiccup/html
+           [:html
+            [:head
+             [:meta {:charset "UTF-8"}]
+             [:meta {:name "viewport"
+                     :content "width=device-width, initial-scale=1"}]
+             [:link {:href "css/style.css" :rel "stylesheet" :type "text/css"}]]
+            [:body
+             [:h1 "sheets fn foo"]
+             [:div#app]
+             [:script {:src "js/compiled/sheets_fn.js" :type "text/javascript"}]
+             [:script {:type "text/javascript"}
+              "sheets_fn.core.main()"]]])})
 
 (defn- status [_]
   (println "status"))
@@ -25,6 +47,7 @@
 (def key->handler
   {:status status
    :index index
+   :login login
    :search search})
 
 (defn wrap-response-headers [handler name value]
@@ -37,6 +60,7 @@
 
 (def app
   (-> (bidi.ring/make-handler bidi-routes key->handler)
+      (ring.middleware.resource/wrap-resource "public")
       middleware.logging/log-requests
       ring.middleware.keyword-params/wrap-keyword-params
       ring.middleware.nested-params/wrap-nested-params
@@ -44,3 +68,6 @@
       ring.middleware.json/wrap-json-params
       ring.middleware.json/wrap-json-response
       (wrap-response-headers "Vary" "Authorization, Accept-Encoding, Origin")))
+
+(comment
+  (require 'sheets-fn.api :reload))

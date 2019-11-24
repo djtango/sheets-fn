@@ -1,7 +1,7 @@
 (ns sheets-fn
   (:require [sheets-fn.server]))
 
-(def server (atom nil))
+(defonce server (atom nil))
 
 (defn -main []
   (reset! server (sheets-fn.server/start!)))

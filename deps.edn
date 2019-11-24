@@ -1,5 +1,19 @@
 {:deps {ring {:mvn/version "1.7.1"}
         ring/ring-json {:mvn/version "0.4.0" :exclusions [cheshire]}
         bidi {:mvn/version "2.1.5"}
-        http-kit {:mvn/version "2.3.0"}}
- :paths ["src"]}
+        http-kit {:mvn/version "2.3.0"}
+        org.clojure/core.async  {:mvn/version "0.4.500"}
+        hiccup {:mvn/version "1.0.5"}
+
+        ;; CLJS
+
+        reagent {:mvn/version "0.8.1"}
+        figwheel {:mvn/version "0.5.19"}
+        cljsjs/react {:mvn/version "16.8.6-0"}
+        cljsjs/react-dom {:mvn/version "16.8.6-0"}
+        cljs-http/cljs-http {:mvn/version "0.1.46"}}
+ :paths ["src/clj" "target"]
+ :aliases {:figwheel {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.3"}
+                                   com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
+                      :main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]
+                      :extra-paths ["target" "src/cljs"]}}}

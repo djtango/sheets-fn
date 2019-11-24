@@ -2,3 +2,5 @@
 clj.cp
 **/*.swo
 **/*.swp
+target/public/cljs-out/
+

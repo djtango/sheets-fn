@@ -1,0 +1,4 @@
+.cpcache
+clj.cp
+**/*.swo
+**/*.swp

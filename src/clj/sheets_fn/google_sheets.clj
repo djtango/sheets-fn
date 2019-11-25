@@ -26,17 +26,6 @@
        (nth-char (->input 5) "Model!$D$2")])
     ")"))
 
-(defn get-recommendations [sheets-client input-1 input-2 input-3 input-4]
-  (let [job-id (str (java.util.UUID/randomUUID))
-        fn-cell (->function-cell)]
-    (let [append-resp (append-sheet sheets-client spreadsheet-id [[job-id input-1 input-2 input-3 input-4 fn-cell]])]
-      (let [updated-range (-> append-resp (get-in ["updates" "updatedRange"]))]
-        (let [updated-cell-values-resp (gs/get-cell-values sheets-client spreadsheet-id [updated-range])]
-          (let [[updated-job-id input-1* input-2* input-3* input-4* output] (first (first updated-cell-values-resp))]
-            (assert (= 1 (count updated-cell-values-resp)) "Should only update one row")
-            (assert (= job-id updated-job-id) (str "job-id should correspond to updated-job-id" job-id "," updated-job-id))
-            output))))))
-
 (defn append-sheet
   [service spreadsheet-id rows]
   (assert (not-empty rows) "Must write at least one row to the sheet")
@@ -48,11 +37,20 @@
               (.spreadsheets)
               (.values)
               (.append spreadsheet-id "Inputs!A:E" value-range))
-
           (.set "includeValuesInResponse" true)
           (.setValueInputOption "USER_ENTERED")
           (.setInsertDataOption "INSERT_ROWS"))
         (.execute))))
+
+(defn get-recommendations [sheets-client input-1 input-2 input-3 input-4]
+  (let [job-id (str (java.util.UUID/randomUUID))
+        fn-cell (->function-cell)]
+    (let [append-resp (append-sheet sheets-client spreadsheet-id [[job-id input-1 input-2 input-3 input-4 fn-cell]])]
+      (let [updated-data (-> append-resp (get-in ["updates" "updatedData" "values"]))]
+        (let [[updated-job-id input-1* input-2* input-3* input-4* output] (first updated-data)]
+          (assert (= 1 (count updated-data)) "Should only update one row")
+          (assert (= job-id updated-job-id) (str "job-id should correspond to updated-job-id" job-id "," updated-job-id))
+          output)))))
 
 (comment
   (require 'sheets-fn.google-sheets :reload)
@@ -72,27 +70,17 @@
 
 
   ;; TODO look into service creds setup
-  (def sheets-client2
+  (def sheets-client
     (gs/build-service (:oauth credentials)))
-
 
   (str (java.util.UUID/randomUUID))
   (def pp clojure.pprint/pprint)
-  (pp (gs/get-sheet-info sheets-client2 spreadsheet-id 0))
-  (pp (gs/get-cells sheets-client2 spreadsheet-id ["Inputs!A1:E9"]))
-  (gs/append-sheet sheets-client2 spreadsheet-id inputs-sheet-id [[(str (java.util.UUID/randomUUID))
-                                                                   "asldkfj"
-                                                                   "asldkfjaslkdfj"
-                                                                   "lorem"
-                                                                   "ajoiwe"
-                                                                   (gs/formula-cell (->function-cell))]])
   )
 (comment
-  (append-inputs-to-sheet! sheets-client2 "netflix" "google" "amazon" "facebook")
-  (get-recommendations sheets-client2 "netflix" "google" "amazon" "facebook")
+  (get-recommendations sheets-client "netflix" "google" "amazon" "facebook")
   ;; =>({"replies" [{}], "spreadsheetId" "1H-EpwDzmVlKR6W8gUO2sWOFrOci7zV7X04oLFBtNbEQ"})
 
-  (append-sheet sheets-client2 spreadsheet-id
+  (append-sheet sheets-client spreadsheet-id
                 [[(str (java.util.UUID/randomUUID)) "netflix" "google" "amazon" "facebook" (->function-cell)]])
   )
 

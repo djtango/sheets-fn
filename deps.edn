@@ -5,6 +5,7 @@
         org.clojure/core.async  {:mvn/version "0.4.500"}
         hiccup {:mvn/version "1.0.5"}
         google-apps-clj {:mvn/version "0.6.1" :exclusions [com.google.guava/guava-jdk5]}
+        buddy/buddy-auth {:mvn/version "2.2.0"}
 
         ;; CLJS
 

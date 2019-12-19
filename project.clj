@@ -12,7 +12,8 @@
                  [figwheel "0.5.19"]
                  [cljsjs/react "16.8.6-0"]
                  [cljsjs/react-dom "16.8.6-0"]
-                 [cljs-http/cljs-http "0.1.46"]]
+                 [cljs-http/cljs-http "0.1.46"]
+                 [buddy/buddy-auth "2.2.0"]]
 
   :plugins [[lein-figwheel "0.5.19"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
